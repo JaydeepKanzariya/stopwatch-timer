@@ -18,6 +18,7 @@ export function Timer({ timer }: TimerProps) {
     isZeroDuration,
     canStart,
     canReset,
+    canEdit,
     muted,
     setField,
     setPreset,
@@ -27,7 +28,7 @@ export function Timer({ timer }: TimerProps) {
     toggleMute,
   } = timer
 
-  const isIdle = status === 'idle'
+  const isIdle = canEdit
   const isFinished = status === 'finished'
   const displayValue = isFinished ? "Time's up" : formattedTime
 
@@ -92,7 +93,7 @@ export function Timer({ timer }: TimerProps) {
       <div
         className={`rounded-2xl border px-3 py-4 transition-colors sm:px-6 ${
           isFinished
-            ? 'border-red-400 bg-red-50/70 dark:border-red-500/70 dark:bg-red-950/30 motion-safe:animate-pulse motion-reduce:animate-none'
+            ? 'border-red-400 bg-red-50/70 dark:border-red-500/70 dark:bg-red-950/30 motion-safe:animate-[pulse_1s_ease-in-out_3] motion-reduce:animate-none'
             : 'border-transparent bg-slate-100/70 dark:bg-slate-800/40'
         }`}
       >

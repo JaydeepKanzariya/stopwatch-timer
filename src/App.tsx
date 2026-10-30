@@ -24,21 +24,24 @@ export default function App() {
     timerRemainingMs: timer.remainingMs,
   })
 
+  const { toggle: toggleStopwatch, reset: resetStopwatch } = stopwatch
+  const { toggle: toggleTimer, reset: resetTimer } = timer
+
   const handleToggleActive = useCallback(() => {
     if (activeTab === 'stopwatch') {
-      stopwatch.toggle()
+      toggleStopwatch()
     } else {
-      timer.toggle()
+      toggleTimer()
     }
-  }, [activeTab, stopwatch, timer])
+  }, [activeTab, toggleStopwatch, toggleTimer])
 
   const handleResetActive = useCallback(() => {
     if (activeTab === 'stopwatch') {
-      stopwatch.reset()
+      resetStopwatch()
     } else {
-      timer.reset()
+      resetTimer()
     }
-  }, [activeTab, stopwatch, timer])
+  }, [activeTab, resetStopwatch, resetTimer])
 
   useShortcuts({
     activeTab,
@@ -93,6 +96,7 @@ export default function App() {
             onSelectTab={setActiveTab}
             stopwatchRunning={stopwatchRunning}
             timerRunning={timerRunning}
+            timerFinished={timerFinished}
           />
 
           <div

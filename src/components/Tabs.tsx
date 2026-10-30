@@ -6,6 +6,7 @@ interface TabsProps {
   onSelectTab: (tab: TabMode) => void
   stopwatchRunning: boolean
   timerRunning: boolean
+  timerFinished: boolean
 }
 
 const TAB_ORDER: readonly TabMode[] = ['stopwatch', 'timer']
@@ -15,6 +16,7 @@ export function Tabs({
   onSelectTab,
   stopwatchRunning,
   timerRunning,
+  timerFinished,
 }: TabsProps) {
   const stopwatchTabRef = useRef<HTMLButtonElement>(null)
   const timerTabRef = useRef<HTMLButtonElement>(null)
@@ -73,14 +75,17 @@ export function Tabs({
       >
         <span>Stopwatch</span>
         {stopwatchRunning && (
-          <span
-            aria-label="Stopwatch running"
-            className={`h-2 w-2 rounded-full ${
-              activeTab === 'stopwatch'
-                ? 'bg-white dark:bg-slate-950'
-                : 'bg-teal-500 dark:bg-teal-400'
-            }`}
-          />
+          <>
+            <span
+              aria-hidden="true"
+              className={`h-2 w-2 rounded-full ${
+                activeTab === 'stopwatch'
+                  ? 'bg-white dark:bg-slate-950'
+                  : 'bg-teal-500 dark:bg-teal-400'
+              }`}
+            />
+            <span className="sr-only">(running)</span>
+          </>
         )}
       </button>
 
@@ -100,15 +105,24 @@ export function Tabs({
         }`}
       >
         <span>Timer</span>
+        {timerFinished && (
+          <>
+            <span aria-hidden="true" className="h-2 w-2 rounded-full bg-red-500" />
+            <span className="sr-only">(finished)</span>
+          </>
+        )}
         {timerRunning && (
-          <span
-            aria-label="Timer running"
-            className={`h-2 w-2 rounded-full ${
-              activeTab === 'timer'
-                ? 'bg-white dark:bg-slate-950'
-                : 'bg-teal-500 dark:bg-teal-400'
-            }`}
-          />
+          <>
+            <span
+              aria-hidden="true"
+              className={`h-2 w-2 rounded-full ${
+                activeTab === 'timer'
+                  ? 'bg-white dark:bg-slate-950'
+                  : 'bg-teal-500 dark:bg-teal-400'
+              }`}
+            />
+            <span className="sr-only">(running)</span>
+          </>
         )}
       </button>
     </div>

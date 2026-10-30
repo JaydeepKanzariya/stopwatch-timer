@@ -81,7 +81,6 @@ export function TimerInputs({
       {isZeroDuration && (
         <p
           id={errorId}
-          role="alert"
           className="text-center text-xs font-medium text-red-600 dark:text-red-400"
         >
           Set a time greater than 0

@@ -8,16 +8,25 @@ interface UseShortcutsParams {
   onLapStopwatch: () => void
 }
 
-function isInteractiveElement(target: EventTarget | null): boolean {
+function isTextField(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) {
     return false
   }
-  if (target.isContentEditable) {
-    return true
+  return (
+    target.isContentEditable ||
+    target.closest('input, textarea, select') !== null
+  )
+}
+
+function isActivatable(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) {
+    return false
   }
-  const interactiveSelector =
-    'button, input, textarea, select, a[href], summary, [role="button"], [role="tab"], [role="link"], [role="checkbox"], [role="switch"], [tabindex]:not([tabindex="-1"])'
-  return target.closest(interactiveSelector) !== null
+  return (
+    target.closest(
+      'button, a[href], summary, [role="button"], [role="tab"], [role="link"]',
+    ) !== null
+  )
 }
 
 /**
@@ -25,7 +34,8 @@ function isInteractiveElement(target: EventTarget | null): boolean {
  * - Space: start/pause active clock
  * - R: reset active clock
  * - L: lap stopwatch (when on stopwatch tab and running)
- * Ignored when focus is on an interactive element or when modifier keys/repeats are active.
+ * All are ignored inside text fields; Space is also ignored on buttons/tabs/links
+ * (the browser activates them). Modifier combos and key repeats are ignored.
  */
 export function useShortcuts({
   activeTab,
@@ -38,11 +48,14 @@ export function useShortcuts({
       if (event.repeat || event.ctrlKey || event.altKey || event.metaKey) {
         return
       }
-      if (isInteractiveElement(event.target)) {
+      if (isTextField(event.target)) {
         return
       }
 
       if (event.code === 'Space' || event.key === ' ') {
+        if (isActivatable(event.target)) {
+          return
+        }
         event.preventDefault()
         onToggleActive()
         return

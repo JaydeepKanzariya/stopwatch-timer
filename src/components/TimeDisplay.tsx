@@ -31,9 +31,9 @@ export function TimeDisplay({
   return (
     <div className="flex flex-col items-center justify-center text-center">
       <div
-        className={`max-w-full font-mono font-bold leading-none tracking-tight tabular-nums select-all ${sizeClasses} ${
+        className={`max-w-full font-mono font-bold leading-none tracking-tight tabular-nums ${sizeClasses} ${
           isAlert
-            ? 'text-red-600 dark:text-red-400 motion-safe:animate-pulse motion-reduce:animate-none'
+            ? 'text-red-600 dark:text-red-400'
             : 'text-slate-900 dark:text-slate-50'
         }`}
       >

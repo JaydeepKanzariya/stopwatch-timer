@@ -20,6 +20,8 @@ export interface TimerState {
   durationMs: number
   remainingMs: number
   endAt: number | null
+  /** Increments on every fresh run so the finish beep fires once per run. */
+  runId: number
 }
 
 export type TimerAction =
@@ -39,7 +41,24 @@ function createInitialTimerState(): TimerState {
     durationMs,
     remainingMs: durationMs,
     endAt: null,
+    runId: 0,
   }
+}
+
+function withInputs(state: TimerState, nextInputs: TimeParts): TimerState {
+  const nextDurationMs = toMs(nextInputs)
+  return {
+    ...state,
+    status: 'idle',
+    inputs: nextInputs,
+    durationMs: nextDurationMs,
+    remainingMs: nextDurationMs,
+    endAt: null,
+  }
+}
+
+function isEditable(status: ClockStatus): boolean {
+  return status === 'idle' || status === 'finished'
 }
 
 export function timerReducer(
@@ -48,57 +67,39 @@ export function timerReducer(
 ): TimerState {
   switch (action.type) {
     case 'SET_FIELD': {
-      if (state.status !== 'idle') {
+      if (!isEditable(state.status)) {
         return state
       }
       const max = action.field === 'h' ? 99 : 59
-      const clamped = clampField(action.rawValue, max)
-      const nextInputs: TimeParts = {
+      return withInputs(state, {
         ...state.inputs,
-        [action.field]: clamped,
-      }
-      const nextDurationMs = toMs(nextInputs)
-      return {
-        ...state,
-        inputs: nextInputs,
-        durationMs: nextDurationMs,
-        remainingMs: nextDurationMs,
-        endAt: null,
-      }
+        [action.field]: clampField(action.rawValue, max),
+      })
     }
 
     case 'SET_PRESET': {
-      if (state.status !== 'idle') {
+      if (!isEditable(state.status)) {
         return state
       }
-      const nextInputs: TimeParts = {
+      return withInputs(state, {
         h: 0,
         m: clampField(action.minutes, 59),
         s: 0,
-      }
-      const nextDurationMs = toMs(nextInputs)
-      return {
-        ...state,
-        inputs: nextInputs,
-        durationMs: nextDurationMs,
-        remainingMs: nextDurationMs,
-        endAt: null,
-      }
+      })
     }
 
     case 'START': {
       if (state.status === 'running' || state.durationMs <= 0) {
         return state
       }
-      const baseRemainingMs =
-        state.status === 'paused' && state.remainingMs > 0
-          ? state.remainingMs
-          : state.durationMs
+      const resuming = state.status === 'paused' && state.remainingMs > 0
+      const baseRemainingMs = resuming ? state.remainingMs : state.durationMs
       return {
         ...state,
         status: 'running',
         remainingMs: baseRemainingMs,
         endAt: action.now + baseRemainingMs,
+        runId: resuming ? state.runId : state.runId + 1,
       }
     }
 
@@ -156,6 +157,7 @@ export interface UseTimerResult {
   isZeroDuration: boolean
   canStart: boolean
   canReset: boolean
+  canEdit: boolean
   muted: boolean
   setField: (field: keyof TimeParts, rawValue: string | number) => void
   setPreset: (minutes: number) => void
@@ -177,8 +179,8 @@ export function useTimer(): UseTimerResult {
   const isRunning = state.status === 'running'
   const now = useNow(isRunning)
 
-  // Guard so the finish effect runs at most once per run, even under StrictMode
-  const handledEndAtRef = useRef<number | null>(null)
+  // Last run that already played its beep; survives StrictMode effect re-runs
+  const beepedRunIdRef = useRef<number>(0)
 
   useEffect(() => {
     saveTimerDuration(state.inputs)
@@ -200,15 +202,18 @@ export function useTimer(): UseTimerResult {
       state.endAt !== null &&
       now >= state.endAt
     ) {
-      if (handledEndAtRef.current !== state.endAt) {
-        handledEndAtRef.current = state.endAt
-        dispatch({ type: 'FINISH' })
-        if (!muted) {
-          playTimerBeep()
-        }
+      dispatch({ type: 'FINISH' })
+    }
+  }, [state.status, state.endAt, now])
+
+  useEffect(() => {
+    if (state.status === 'finished' && beepedRunIdRef.current !== state.runId) {
+      beepedRunIdRef.current = state.runId
+      if (!muted) {
+        playTimerBeep()
       }
     }
-  }, [state.status, state.endAt, now, muted])
+  }, [state.status, state.runId, muted])
 
   const remainingMs =
     isRunning && state.endAt !== null
@@ -223,6 +228,7 @@ export function useTimer(): UseTimerResult {
   const isZeroDuration = state.durationMs <= 0
   const canStart = !isZeroDuration
   const canReset = state.status !== 'idle'
+  const canEdit = isEditable(state.status)
 
   const setField = useCallback(
     (field: keyof TimeParts, rawValue: string | number) => {
@@ -274,6 +280,7 @@ export function useTimer(): UseTimerResult {
     isZeroDuration,
     canStart,
     canReset,
+    canEdit,
     muted,
     setField,
     setPreset,
