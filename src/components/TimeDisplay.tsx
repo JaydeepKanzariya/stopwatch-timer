@@ -40,7 +40,7 @@ export function TimeDisplay({
         {value}
       </div>
       {sublabel && (
-        <span className="mt-2 text-xs font-medium tracking-wider text-slate-500 uppercase dark:text-slate-400">
+        <span className="mt-2 text-xs font-medium tracking-wider text-slate-600 uppercase dark:text-slate-400">
           {sublabel}
         </span>
       )}

@@ -46,7 +46,7 @@ export function Controls({
         type="button"
         onClick={handlePrimaryClick}
         disabled={!isRunning && !canStart}
-        className="min-h-[44px] min-w-[112px] flex-1 sm:flex-initial sm:min-w-[136px] rounded-xl bg-teal-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors enabled:hover:bg-teal-700 enabled:active:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 dark:bg-teal-500 dark:text-slate-950 dark:enabled:hover:bg-teal-400 dark:focus-visible:ring-offset-slate-900"
+        className="min-h-[44px] min-w-[112px] flex-1 sm:flex-initial sm:min-w-[136px] rounded-xl bg-teal-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors enabled:hover:bg-teal-800 enabled:active:bg-teal-900 disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 dark:bg-teal-500 dark:text-slate-950 dark:enabled:hover:bg-teal-400 dark:focus-visible:ring-offset-slate-900"
       >
         {primaryLabel}
       </button>

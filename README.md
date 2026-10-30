@@ -1,6 +1,6 @@
 # Stopwatch & Timer App
 
-A standalone, accessible **Stopwatch and Countdown Timer** web application built with React, TypeScript (strict), Vite, and Tailwind CSS v4 for the Web Dev Cohort 2026 assignment.
+A standalone, accessible **Stopwatch and Countdown Timer** web application built with React, TypeScript (strict), Vite, and Tailwind CSS v4. It tracks time from timestamps rather than counting ticks, so it stays accurate even when the browser tab is in the background.
 
 Live: <to be added after deploy>
 

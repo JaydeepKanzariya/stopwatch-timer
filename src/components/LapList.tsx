@@ -9,7 +9,7 @@ interface LapListProps {
 export function LapList({ laps, extremes }: LapListProps) {
   if (laps.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-slate-200 px-4 py-6 text-center text-sm text-slate-500 dark:border-slate-800 dark:text-slate-400">
+      <div className="rounded-xl border border-dashed border-slate-200 px-4 py-6 text-center text-sm text-slate-600 dark:border-slate-800 dark:text-slate-400">
         No laps recorded yet. Press <span className="font-medium">Lap</span> while
         running to record split times.
       </div>
@@ -18,7 +18,7 @@ export function LapList({ laps, extremes }: LapListProps) {
 
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50/60 dark:border-slate-800 dark:bg-slate-900/50">
-      <div className="grid grid-cols-12 border-b border-slate-200 bg-slate-100/80 px-3 py-2 text-xs font-semibold tracking-wider text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-800/60 dark:text-slate-400 sm:px-4">
+      <div className="grid grid-cols-12 border-b border-slate-200 bg-slate-100/80 px-3 py-2 text-xs font-semibold tracking-wider text-slate-600 uppercase dark:border-slate-800 dark:bg-slate-800/60 dark:text-slate-400 sm:px-4">
         <div className="col-span-5">Lap</div>
         <div className="col-span-4 text-right">Split</div>
         <div className="col-span-3 text-right">Total</div>
@@ -49,7 +49,7 @@ export function LapList({ laps, extremes }: LapListProps) {
               <div className="col-span-5 flex flex-wrap items-center gap-1.5 font-medium">
                 <span>#{String(lap.lapNumber).padStart(2, '0')}</span>
                 {isFastest && (
-                  <span className="inline-flex items-center gap-0.5 rounded-full bg-teal-600/15 px-2 py-0.5 text-[11px] font-semibold text-teal-700 dark:bg-teal-400/15 dark:text-teal-300">
+                  <span className="inline-flex items-center gap-0.5 rounded-full bg-teal-600/15 px-2 py-0.5 text-[11px] font-semibold text-teal-800 dark:bg-teal-400/15 dark:text-teal-300">
                     <span aria-hidden="true">↑</span> Fastest
                   </span>
                 )}
@@ -64,7 +64,7 @@ export function LapList({ laps, extremes }: LapListProps) {
                 {formatStopwatch(lap.splitMs)}
               </div>
 
-              <div className="col-span-3 text-right font-mono text-slate-500 dark:text-slate-400">
+              <div className="col-span-3 text-right font-mono text-slate-600 dark:text-slate-400">
                 {formatStopwatch(lap.totalMs)}
               </div>
             </li>

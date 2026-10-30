@@ -35,7 +35,7 @@ export function Timer({ timer }: TimerProps) {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+        <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
           {isFinished
             ? 'Countdown complete'
             : status === 'running'

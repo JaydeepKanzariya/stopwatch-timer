@@ -73,7 +73,7 @@ export default function App() {
             Stopwatch &amp; Timer
           </h1>
         </div>
-        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 sm:text-sm">
+        <p className="mt-1 text-xs text-slate-600 dark:text-slate-400 sm:text-sm">
           Precision timekeeping with split laps and custom countdowns
         </p>
       </header>
@@ -119,7 +119,7 @@ export default function App() {
             <Timer timer={timer} />
           </div>
 
-          <div className="mt-6 border-t border-slate-100 pt-3.5 text-center text-xs text-slate-500 dark:border-slate-800/80 dark:text-slate-400">
+          <div className="mt-6 border-t border-slate-100 pt-3.5 text-center text-xs text-slate-600 dark:border-slate-800/80 dark:text-slate-400">
             <span className="inline-flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
               <span>
                 <kbd className="rounded border border-slate-300 bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
@@ -144,8 +144,17 @@ export default function App() {
         </div>
       </main>
 
-      <footer className="mx-auto w-full max-w-lg text-center text-xs text-slate-500 dark:text-slate-400">
-        Built with React
+      <footer className="mx-auto w-full max-w-lg text-center text-xs text-slate-600 dark:text-slate-400">
+        <span>&copy; 2026 Jaydeep Kanzariya</span>
+        <span aria-hidden="true"> · </span>
+        <a
+          href="https://github.com/JaydeepKanzariya/stopwatch-timer"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rounded font-medium underline underline-offset-2 transition-colors hover:text-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 dark:hover:text-teal-300 dark:focus-visible:ring-offset-slate-950"
+        >
+          Source on GitHub
+        </a>
       </footer>
     </div>
   )

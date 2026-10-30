@@ -69,7 +69,7 @@ export function Tabs({
         onClick={() => onSelectTab('stopwatch')}
         className={`relative flex min-h-[44px] items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${
           activeTab === 'stopwatch'
-            ? 'bg-teal-600 text-white shadow-sm dark:bg-teal-500 dark:text-slate-950'
+            ? 'bg-teal-700 text-white shadow-sm dark:bg-teal-500 dark:text-slate-950'
             : 'text-slate-600 hover:bg-slate-200/70 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700/60 dark:hover:text-white'
         }`}
       >
@@ -100,7 +100,7 @@ export function Tabs({
         onClick={() => onSelectTab('timer')}
         className={`relative flex min-h-[44px] items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${
           activeTab === 'timer'
-            ? 'bg-teal-600 text-white shadow-sm dark:bg-teal-500 dark:text-slate-950'
+            ? 'bg-teal-700 text-white shadow-sm dark:bg-teal-500 dark:text-slate-950'
             : 'text-slate-600 hover:bg-slate-200/70 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700/60 dark:hover:text-white'
         }`}
       >
