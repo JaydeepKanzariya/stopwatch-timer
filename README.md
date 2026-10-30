@@ -2,7 +2,11 @@
 
 A standalone, accessible **Stopwatch and Countdown Timer** web application built with React, TypeScript (strict), Vite, and Tailwind CSS v4. It tracks time from timestamps rather than counting ticks, so it stays accurate even when the browser tab is in the background.
 
-Live: <to be added after deploy>
+**Live:** https://stopwatch-timer-rust.vercel.app/
+
+| Stopwatch with laps (desktop, light) | Timer running (mobile, dark) |
+|---|---|
+| ![Stopwatch with three laps and fastest and slowest highlighted](public/og-image.png) | <img src="docs/timer-mobile-dark.png" alt="25 minute countdown timer with progress ring on a phone in dark mode" width="260"> |
 
 ---
 
@@ -38,6 +42,7 @@ Live: <to be added after deploy>
 - **Language:** TypeScript (strict mode, zero `any`)
 - **Styling:** Tailwind CSS v4 (`@tailwindcss/vite`)
 - **Linter:** Oxlint
+- **Tests:** Vitest (pure time helpers, lap logic, and the stopwatch and timer reducers)
 
 ---
 
@@ -55,6 +60,9 @@ npm run build
 
 # Run linter
 npm run lint
+
+# Run unit tests
+npm test
 ```
 
 ---
@@ -72,12 +80,15 @@ src/
     laps.ts                 # Pure fastest/slowest lap calculation
     beep.ts                 # Shared Web Audio API chime and gesture unlock helper
     storage.ts              # Safe localStorage read/write with runtime validation
+    time.test.ts            # Unit tests: formatting, rounding, clamping, 99:59:59
+    laps.test.ts            # Unit tests: fastest/slowest lap detection
   hooks/
     useNow.ts               # High-resolution ticking timestamp while a clock is active
     useStopwatch.ts         # Pure reducer + derived stopwatch state and lap actions
     useTimer.ts             # Pure reducer + derived countdown state, persistence, finish handler
     useDocumentTitle.ts     # Throttled (~1 Hz) document.title updates while running
     useShortcuts.ts         # Global Space / R / L keyboard shortcuts
+    clockReducers.test.ts   # Unit tests: stopwatch and timer reducers
   components/
     Tabs.tsx                # Accessible tablist with roving tabIndex and arrow keys
     TimeDisplay.tsx         # Responsive tabular-nums hero display
@@ -88,19 +99,21 @@ src/
     TimerInputs.tsx         # Sanitised Hours / Minutes / Seconds fields
     Presets.tsx             # 1 / 5 / 10 / 25 minute preset buttons
     ProgressRing.tsx        # SVG circular progress indicator
+public/og-image.png         # Link-preview image (also used in this README)
+docs/                       # README screenshots
 ```
 
 ---
 
 ## How Timekeeping Works
 
-Neither the stopwatch nor the timer increments or decrements a counter on ticks. The stopwatch records `accumulatedMs` and a `startedAt` timestamp from `performance.now()`, deriving elapsed time on each render as `accumulatedMs + (running ? now - startedAt : 0)`. The countdown timer stores an absolute target timestamp `endAt = now + remainingMs` while running and derives remaining time as `Math.max(0, endAt - now)`, storing `remainingMs` on pause and recomputing `endAt` on resume. A shared `useNow` hook uses `requestAnimationFrame` alongside a lightweight background interval and `visibilitychange` listener strictly to trigger re-renders while a clock is active, ensuring zero drift even when the browser tab is hidden or throttled.
+Neither the stopwatch nor the timer increments or decrements a counter on ticks. The stopwatch records `accumulatedMs` and a `startedAt` timestamp from `performance.now()`, deriving elapsed time on each render as `accumulatedMs + (running ? now - startedAt : 0)`. The countdown timer stores an absolute target timestamp `endAt = now + remainingMs` while running and derives remaining time as `Math.max(0, endAt - now)`, storing `remainingMs` on pause and recomputing `endAt` on resume. A shared `useNow` hook uses `requestAnimationFrame` while the page is visible and a 40 ms interval only while it is hidden (when the browser pauses animation frames), switching between the two on `visibilitychange`. It exists strictly to trigger re-renders while a clock is active, so there is zero drift even when the browser tab is hidden or throttled.
 
 ---
 
 ## Keyboard Shortcuts
 
-Shortcuts are active when focus is not inside an interactive element (`button`, `input`, `a`, tab, etc.):
+Shortcuts are ignored while typing in a text field (`input`, `textarea`, `select`). `Space` is also ignored when a button, tab, or link has focus, because the browser already activates the focused control. `R` and `L` keep working after you click a button. Key repeats and modifier combinations (`Ctrl`, `Alt`, `Meta`) are ignored.
 
 | Key | Action |
 |---|---|
@@ -117,6 +130,10 @@ Shortcuts are active when focus is not inside an interactive element (`button`, 
 - **Negative and Decimal Input Sanitisation:** Negative strings (such as `-5`) are clamped to the minimum `0`, decimal values (such as `1.5`) truncate at the decimal point to their integer part (`1`), non-numeric strings (`abc`) resolve to `0`, and values above the field maximum (`999`) clamp to `99` (Hours) or `59` (Minutes/Seconds).
 - **Fastest / Slowest Lap Highlighting:** Once 3 or more laps exist and splits are not all identical, the fastest split is styled in teal with an `↑ Fastest` badge and the slowest split is styled in red with a `↓ Slowest` badge so distinction never relies on colour alone.
 - **Document Title Throttling:** `useDocumentTitle` keys its effect on whole seconds (`Math.ceil(remainingMs / 1000)` for Timer and `Math.floor(elapsedMs / 1000)` for Stopwatch), updating `document.title` at most once per second and preferring the Timer if both clocks are running simultaneously.
+
+---
+
+- **Editing After Finish:** Once the timer reaches `Time's up`, the Hours / Minutes / Seconds inputs and presets unlock immediately and any edit returns the timer to idle with the new duration. Each fresh run has its own `runId`, so the completion chime plays exactly once per run, even under `<StrictMode>`.
 
 ---
 

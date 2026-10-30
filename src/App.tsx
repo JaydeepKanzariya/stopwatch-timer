@@ -151,7 +151,7 @@ export default function App() {
           href="https://github.com/JaydeepKanzariya/stopwatch-timer"
           target="_blank"
           rel="noopener noreferrer"
-          className="rounded font-medium underline underline-offset-2 transition-colors hover:text-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 dark:hover:text-teal-300 dark:focus-visible:ring-offset-slate-950"
+          className="-my-3.5 inline-block rounded py-3.5 font-medium underline underline-offset-2 transition-colors hover:text-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 dark:hover:text-teal-300 dark:focus-visible:ring-offset-slate-950"
         >
           Source on GitHub
         </a>
