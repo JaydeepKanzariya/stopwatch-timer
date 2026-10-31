@@ -1,0 +1,10 @@
+dist
+node_modules
+coverage
+playwright-report
+test-results
+specs
+docs
+public
+package-lock.json
+LICENSE

@@ -1,14 +1,42 @@
 {
   "name": "stopwatch-timer",
+  "version": "1.0.0",
+  "description": "Accessible stopwatch with laps and countdown timer with presets, built with React, TypeScript, Vite and Tailwind CSS.",
   "private": true,
-  "version": "0.0.0",
+  "license": "MIT",
+  "author": "Jaydeep Kanzariya",
+  "homepage": "https://stopwatch-timer-rust.vercel.app/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JaydeepKanzariya/stopwatch-timer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/JaydeepKanzariya/stopwatch-timer/issues"
+  },
+  "keywords": [
+    "react",
+    "typescript",
+    "vite",
+    "tailwindcss",
+    "stopwatch",
+    "timer",
+    "countdown",
+    "pwa"
+  ],
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "preview": "vite preview",
     "lint": "oxlint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test": "vitest run",
-    "preview": "vite preview"
+    "test:e2e": "playwright test",
+    "check": "npm run lint && npm run format:check && tsc -b && npm test"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
@@ -17,11 +45,18 @@
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.64.1",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
+    "jsdom": "^30.1.3",
     "oxlint": "^1.89.0",
+    "prettier": "^3.9.10",
     "typescript": "~7.0.2",
     "vite": "^8.3.5",
     "vitest": "^5.0.5"
