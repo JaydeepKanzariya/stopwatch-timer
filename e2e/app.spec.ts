@@ -74,29 +74,41 @@ test('sends security headers and a valid manifest', async ({
   }
 })
 
+// axe measures the colours on screen right now. Colour transitions would make
+// it see halfway values (a fast CI runner got there before they finished), so
+// wait until nothing is animating before every scan.
+async function settled(page: Page) {
+  await page.waitForFunction(() => document.getAnimations().length === 0)
+}
+
 test.describe('accessibility (axe)', () => {
   for (const colorScheme of ['light', 'dark'] as const) {
-    test(`stopwatch and timer have no violations in ${colorScheme} mode`, async ({
-      page,
-    }) => {
-      await page.emulateMedia({ colorScheme })
-      await page.getByRole('button', { name: 'Start' }).click()
-      await page.getByRole('button', { name: 'Lap' }).click()
-      await page.waitForTimeout(300)
-      await page.getByRole('button', { name: 'Lap' }).click()
-      await page.getByRole('button', { name: 'Lap' }).click()
-      await page.getByRole('button', { name: 'Pause' }).click()
+    test.describe(`${colorScheme} mode`, () => {
+      // Load the page in the scheme instead of switching after load.
+      test.use({ colorScheme })
 
-      const stopwatchResults = await new AxeBuilder({ page }).analyze()
-      expect(stopwatchResults.violations).toEqual([])
+      test('stopwatch and timer have no violations', async ({ page }) => {
+        await page.getByRole('button', { name: 'Start' }).click()
+        await page.getByRole('button', { name: 'Lap' }).click()
+        await page.waitForTimeout(300)
+        await page.getByRole('button', { name: 'Lap' }).click()
+        await page.getByRole('button', { name: 'Lap' }).click()
+        await page.getByRole('button', { name: 'Pause' }).click()
 
-      await openTimer(page)
-      const timerResults = await new AxeBuilder({ page }).analyze()
-      expect(timerResults.violations).toEqual([])
+        await settled(page)
+        const stopwatchResults = await new AxeBuilder({ page }).analyze()
+        expect(stopwatchResults.violations).toEqual([])
 
-      await setTimer(page, '0', '0')
-      const errorResults = await new AxeBuilder({ page }).analyze()
-      expect(errorResults.violations).toEqual([])
+        await openTimer(page)
+        await settled(page)
+        const timerResults = await new AxeBuilder({ page }).analyze()
+        expect(timerResults.violations).toEqual([])
+
+        await setTimer(page, '0', '0')
+        await settled(page)
+        const errorResults = await new AxeBuilder({ page }).analyze()
+        expect(errorResults.violations).toEqual([])
+      })
     })
   }
 })
