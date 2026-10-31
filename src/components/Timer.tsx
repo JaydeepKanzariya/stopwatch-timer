@@ -3,6 +3,7 @@ import { Controls } from './Controls.tsx'
 import { Presets } from './Presets.tsx'
 import { ProgressRing } from './ProgressRing.tsx'
 import { TimeDisplay } from './TimeDisplay.tsx'
+import { TimerAlerts } from './TimerAlerts.tsx'
 import { TimerInputs } from './TimerInputs.tsx'
 
 interface TimerProps {
@@ -20,12 +21,15 @@ export function Timer({ timer }: TimerProps) {
     canReset,
     canEdit,
     muted,
+    notifyPermission,
+    notifyEnabled,
     setField,
     setPreset,
     start,
     pause,
     reset,
     toggleMute,
+    toggleNotify,
   } = timer
 
   const isIdle = canEdit
@@ -45,49 +49,13 @@ export function Timer({ timer }: TimerProps) {
                 : 'Configure countdown'}
         </span>
 
-        <button
-          type="button"
-          aria-pressed={muted}
-          onClick={toggleMute}
-          className={`inline-flex min-h-[44px] items-center gap-2 rounded-xl border px-3.5 py-2 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${
-            muted
-              ? 'border-slate-300 bg-slate-100 text-slate-600 hover:bg-slate-200/70 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
-              : 'border-teal-500/40 bg-teal-50/70 text-teal-800 hover:bg-teal-100/70 dark:border-teal-500/40 dark:bg-teal-950/50 dark:text-teal-200 dark:hover:bg-teal-900/50'
-          }`}
-        >
-          {muted ? (
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-4 w-4"
-            >
-              <path d="M11 5 6 9H2v6h4l5 4V5Z" />
-              <line x1="22" y1="9" x2="16" y2="15" />
-              <line x1="16" y1="9" x2="22" y2="15" />
-            </svg>
-          ) : (
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-4 w-4"
-            >
-              <path d="M11 5 6 9H2v6h4l5 4V5Z" />
-              <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-            </svg>
-          )}
-          <span>{muted ? 'Muted' : 'Sound on'}</span>
-        </button>
+        <TimerAlerts
+          muted={muted}
+          notifyPermission={notifyPermission}
+          notifyEnabled={notifyEnabled}
+          onToggleMute={toggleMute}
+          onToggleNotify={toggleNotify}
+        />
       </div>
 
       <div
@@ -117,11 +85,7 @@ export function Timer({ timer }: TimerProps) {
       />
 
       <div className="flex flex-col gap-3 border-t border-slate-200/80 pt-4 dark:border-slate-800">
-        <Presets
-          inputs={inputs}
-          isIdle={isIdle}
-          onSelectPreset={setPreset}
-        />
+        <Presets inputs={inputs} isIdle={isIdle} onSelectPreset={setPreset} />
 
         <TimerInputs
           inputs={inputs}

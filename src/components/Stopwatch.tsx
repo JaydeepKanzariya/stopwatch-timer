@@ -22,8 +22,7 @@ export function Stopwatch({ stopwatch }: StopwatchProps) {
     lap,
   } = stopwatch
 
-  const sublabel =
-    elapsedMs >= 3_600_000 ? 'HH : MM : SS . cc' : 'MM : SS . cc'
+  const sublabel = elapsedMs >= 3_600_000 ? 'HH : MM : SS . cc' : 'MM : SS . cc'
 
   return (
     <div className="flex flex-col gap-6">

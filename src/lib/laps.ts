@@ -9,11 +9,15 @@ export function getLapExtremes(laps: readonly Lap[]): LapExtremes {
     return { fastestId: null, slowestId: null }
   }
 
-  let fastest = laps[0]
-  let slowest = laps[0]
+  const [first, ...rest] = laps
+  if (!first) {
+    return { fastestId: null, slowestId: null }
+  }
 
-  for (let i = 1; i < laps.length; i += 1) {
-    const current = laps[i]
+  let fastest = first
+  let slowest = first
+
+  for (const current of rest) {
     if (current.splitMs < fastest.splitMs) {
       fastest = current
     }

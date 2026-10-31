@@ -6,17 +6,21 @@ interface UseDocumentTitleParams {
   stopwatchElapsedMs: number
   timerRunning: boolean
   timerRemainingMs: number
+  timerFinished: boolean
 }
 
 /**
  * Updates document.title at most once per second while any clock is running
- * (preferring the timer when both run), and restores the original title when idle or unmounted.
+ * (preferring the timer when both run). Shows "Time's up" once the timer has
+ * finished so it is visible from another tab. Restores the original title when
+ * idle or unmounted.
  */
 export function useDocumentTitle({
   stopwatchRunning,
   stopwatchElapsedMs,
   timerRunning,
   timerRemainingMs,
+  timerFinished,
 }: UseDocumentTitleParams): void {
   const defaultTitleRef = useRef<string>(
     typeof document !== 'undefined' && document.title
@@ -33,6 +37,11 @@ export function useDocumentTitle({
     : 0
 
   useEffect(() => {
+    if (timerFinished) {
+      document.title = "Time's up · Timer"
+      return
+    }
+
     if (timerRunning) {
       document.title = `${formatCompactSeconds(timerWholeSeconds)} · Timer`
       return
@@ -45,6 +54,7 @@ export function useDocumentTitle({
 
     document.title = defaultTitleRef.current
   }, [
+    timerFinished,
     timerRunning,
     timerWholeSeconds,
     stopwatchRunning,

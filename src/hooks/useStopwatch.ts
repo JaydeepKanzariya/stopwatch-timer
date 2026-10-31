@@ -1,15 +1,10 @@
-import { useCallback, useReducer } from 'react'
+import { useCallback, useEffect, useReducer } from 'react'
 import { getLapExtremes } from '../lib/laps.ts'
+import { fromStopwatchSnapshot, toStopwatchSnapshot } from '../lib/persist.ts'
+import { loadStopwatchSnapshot, saveStopwatchSnapshot } from '../lib/storage.ts'
 import { formatStopwatch } from '../lib/time.ts'
-import type { ClockStatus, Lap, LapExtremes } from '../types.ts'
+import type { Lap, LapExtremes, StopwatchState } from '../types.ts'
 import { useNow } from './useNow.ts'
-
-export interface StopwatchState {
-  status: Extract<ClockStatus, 'idle' | 'running' | 'paused'>
-  accumulatedMs: number
-  startedAt: number | null
-  laps: Lap[]
-}
 
 export type StopwatchAction =
   | { type: 'START'; now: number }
@@ -22,6 +17,13 @@ const INITIAL_STATE: StopwatchState = {
   accumulatedMs: 0,
   startedAt: null,
   laps: [],
+}
+
+function createInitialStopwatchState(): StopwatchState {
+  const snapshot = loadStopwatchSnapshot()
+  return snapshot
+    ? fromStopwatchSnapshot(snapshot, performance.now(), Date.now())
+    : INITIAL_STATE
 }
 
 export function stopwatchReducer(
@@ -63,7 +65,7 @@ export function stopwatchReducer(
       }
       const totalMs =
         state.accumulatedMs + Math.max(0, action.now - state.startedAt)
-      const previousTotalMs = state.laps.length > 0 ? state.laps[0].totalMs : 0
+      const previousTotalMs = state.laps[0]?.totalMs ?? 0
       const splitMs = Math.max(0, totalMs - previousTotalMs)
       const nextLapNumber = state.laps.length + 1
       const nextLap: Lap = {
@@ -96,9 +98,21 @@ export interface UseStopwatchResult {
 }
 
 export function useStopwatch(): UseStopwatchResult {
-  const [state, dispatch] = useReducer(stopwatchReducer, INITIAL_STATE)
+  const [state, dispatch] = useReducer(
+    stopwatchReducer,
+    undefined,
+    createInitialStopwatchState,
+  )
   const isRunning = state.status === 'running'
   const now = useNow(isRunning)
+
+  // State only changes on user actions (elapsed time is derived), so this
+  // runs on Start/Pause/Lap/Reset and never once per frame.
+  useEffect(() => {
+    saveStopwatchSnapshot(
+      toStopwatchSnapshot(state, performance.now(), Date.now()),
+    )
+  }, [state])
 
   const elapsedMs =
     state.accumulatedMs +

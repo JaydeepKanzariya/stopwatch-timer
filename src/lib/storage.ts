@@ -1,4 +1,10 @@
 import type { TimeParts } from '../types.ts'
+import {
+  parseStopwatchSnapshot,
+  parseTimerSnapshot,
+  type StopwatchSnapshot,
+  type TimerSnapshot,
+} from './persist.ts'
 import { clampField } from './time.ts'
 
 const DURATION_KEY = 'stopwatch-timer:timer-duration-v1'
@@ -77,6 +83,84 @@ export function saveMuted(muted: boolean): void {
       return
     }
     window.localStorage.setItem(MUTE_KEY, JSON.stringify(muted))
+  } catch {
+    // Ignore localStorage failures
+  }
+}
+
+const STOPWATCH_KEY = 'stopwatch-timer:stopwatch-v1'
+const TIMER_STATE_KEY = 'stopwatch-timer:timer-state-v1'
+
+function readJson(key: string): unknown {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) {
+      return null
+    }
+    const raw = window.localStorage.getItem(key)
+    return raw === null ? null : (JSON.parse(raw) as unknown)
+  } catch {
+    return null
+  }
+}
+
+/** Writes `value`, or removes the key when `value` is null. */
+function writeJson(key: string, value: unknown): void {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) {
+      return
+    }
+    if (value === null) {
+      window.localStorage.removeItem(key)
+    } else {
+      window.localStorage.setItem(key, JSON.stringify(value))
+    }
+  } catch {
+    // Ignore localStorage failures
+  }
+}
+
+export function loadStopwatchSnapshot(): StopwatchSnapshot | null {
+  return parseStopwatchSnapshot(readJson(STOPWATCH_KEY))
+}
+
+export function saveStopwatchSnapshot(
+  snapshot: StopwatchSnapshot | null,
+): void {
+  writeJson(STOPWATCH_KEY, snapshot)
+}
+
+export function loadTimerSnapshot(): TimerSnapshot | null {
+  return parseTimerSnapshot(readJson(TIMER_STATE_KEY))
+}
+
+export function saveTimerSnapshot(snapshot: TimerSnapshot | null): void {
+  writeJson(TIMER_STATE_KEY, snapshot)
+}
+
+const NOTIFY_KEY = 'stopwatch-timer:timer-notify-v1'
+
+export function loadNotify(): boolean {
+  return readJson(NOTIFY_KEY) === true
+}
+
+export function saveNotify(enabled: boolean): void {
+  writeJson(NOTIFY_KEY, enabled)
+}
+
+/** Removes everything this app has saved. Used as a last-resort recovery. */
+export function clearSavedData(): void {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) {
+      return
+    }
+    const keys: string[] = []
+    for (let i = 0; i < window.localStorage.length; i += 1) {
+      const key = window.localStorage.key(i)
+      if (key?.startsWith('stopwatch-timer:')) {
+        keys.push(key)
+      }
+    }
+    keys.forEach((key) => window.localStorage.removeItem(key))
   } catch {
     // Ignore localStorage failures
   }

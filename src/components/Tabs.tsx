@@ -9,8 +9,6 @@ interface TabsProps {
   timerFinished: boolean
 }
 
-const TAB_ORDER: readonly TabMode[] = ['stopwatch', 'timer']
-
 export function Tabs({
   activeTab,
   onSelectTab,
@@ -31,23 +29,15 @@ export function Tabs({
   }
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    const currentIndex = TAB_ORDER.indexOf(activeTab)
-    if (currentIndex === -1) {
-      return
-    }
-
     if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
       event.preventDefault()
-      const direction = event.key === 'ArrowRight' ? 1 : -1
-      const nextIndex =
-        (currentIndex + direction + TAB_ORDER.length) % TAB_ORDER.length
-      focusAndSelect(TAB_ORDER[nextIndex])
+      focusAndSelect(activeTab === 'stopwatch' ? 'timer' : 'stopwatch')
     } else if (event.key === 'Home') {
       event.preventDefault()
-      focusAndSelect(TAB_ORDER[0])
+      focusAndSelect('stopwatch')
     } else if (event.key === 'End') {
       event.preventDefault()
-      focusAndSelect(TAB_ORDER[TAB_ORDER.length - 1])
+      focusAndSelect('timer')
     }
   }
 
@@ -84,7 +74,7 @@ export function Tabs({
                   : 'bg-teal-500 dark:bg-teal-400'
               }`}
             />
-            <span className="sr-only">(running)</span>
+            <span className="sr-only">{' (running)'}</span>
           </>
         )}
       </button>
@@ -107,8 +97,11 @@ export function Tabs({
         <span>Timer</span>
         {timerFinished && (
           <>
-            <span aria-hidden="true" className="h-2 w-2 rounded-full bg-red-500" />
-            <span className="sr-only">(finished)</span>
+            <span
+              aria-hidden="true"
+              className="h-2 w-2 rounded-full bg-red-500"
+            />
+            <span className="sr-only">{' (finished)'}</span>
           </>
         )}
         {timerRunning && (
@@ -121,7 +114,7 @@ export function Tabs({
                   : 'bg-teal-500 dark:bg-teal-400'
               }`}
             />
-            <span className="sr-only">(running)</span>
+            <span className="sr-only">{' (running)'}</span>
           </>
         )}
       </button>

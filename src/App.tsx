@@ -22,6 +22,7 @@ export default function App() {
     stopwatchElapsedMs: stopwatch.elapsedMs,
     timerRunning,
     timerRemainingMs: timer.remainingMs,
+    timerFinished,
   })
 
   const { toggle: toggleStopwatch, reset: resetStopwatch } = stopwatch

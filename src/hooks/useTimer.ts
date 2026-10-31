@@ -5,24 +5,26 @@ import {
   unlockAudioContext,
 } from '../lib/beep.ts'
 import {
+  getNotificationPermission,
+  requestNotificationPermission,
+  showTimerNotification,
+  vibrateOnFinish,
+  type NotifyPermission,
+} from '../lib/notify.ts'
+import { fromTimerSnapshot, toTimerSnapshot } from '../lib/persist.ts'
+import {
   loadMuted,
+  loadNotify,
   loadTimerDuration,
+  loadTimerSnapshot,
   saveMuted,
+  saveNotify,
   saveTimerDuration,
+  saveTimerSnapshot,
 } from '../lib/storage.ts'
 import { clampField, formatTimer, toMs } from '../lib/time.ts'
-import type { ClockStatus, TimeParts } from '../types.ts'
+import type { ClockStatus, TimeParts, TimerState } from '../types.ts'
 import { useNow } from './useNow.ts'
-
-export interface TimerState {
-  status: ClockStatus
-  inputs: TimeParts
-  durationMs: number
-  remainingMs: number
-  endAt: number | null
-  /** Increments on every fresh run so the finish beep fires once per run. */
-  runId: number
-}
 
 export type TimerAction =
   | { type: 'SET_FIELD'; field: keyof TimeParts; rawValue: string | number }
@@ -35,7 +37,7 @@ export type TimerAction =
 function createInitialTimerState(): TimerState {
   const inputs = loadTimerDuration()
   const durationMs = toMs(inputs)
-  return {
+  const idle: TimerState = {
     status: 'idle',
     inputs,
     durationMs,
@@ -43,6 +45,10 @@ function createInitialTimerState(): TimerState {
     endAt: null,
     runId: 0,
   }
+  const snapshot = loadTimerSnapshot()
+  return snapshot
+    ? fromTimerSnapshot(snapshot, idle, performance.now(), Date.now())
+    : idle
 }
 
 function withInputs(state: TimerState, nextInputs: TimeParts): TimerState {
@@ -159,6 +165,8 @@ export interface UseTimerResult {
   canReset: boolean
   canEdit: boolean
   muted: boolean
+  notifyPermission: NotifyPermission
+  notifyEnabled: boolean
   setField: (field: keyof TimeParts, rawValue: string | number) => void
   setPreset: (minutes: number) => void
   start: () => void
@@ -166,6 +174,7 @@ export interface UseTimerResult {
   toggle: () => void
   reset: () => void
   toggleMute: () => void
+  toggleNotify: () => void
 }
 
 export function useTimer(): UseTimerResult {
@@ -175,12 +184,27 @@ export function useTimer(): UseTimerResult {
     createInitialTimerState,
   )
   const [muted, setMuted] = useState<boolean>(() => loadMuted())
+  const [notifyPermission, setNotifyPermission] = useState<NotifyPermission>(
+    () => getNotificationPermission(),
+  )
+  const [notifyEnabled, setNotifyEnabled] = useState<boolean>(
+    () => loadNotify() && getNotificationPermission() === 'granted',
+  )
 
   const isRunning = state.status === 'running'
   const now = useNow(isRunning)
 
-  // Last run that already played its beep; survives StrictMode effect re-runs
-  const beepedRunIdRef = useRef<number>(0)
+  // Last run that already played its beep; survives StrictMode effect re-runs.
+  // A timer that finished while the page was closed must not beep on load.
+  const beepedRunIdRef = useRef<number>(
+    state.status === 'finished' ? state.runId : 0,
+  )
+
+  // State only changes on user actions and on finish (remaining time is
+  // derived), so this does not run once per frame.
+  useEffect(() => {
+    saveTimerSnapshot(toTimerSnapshot(state, performance.now(), Date.now()))
+  }, [state])
 
   useEffect(() => {
     saveTimerDuration(state.inputs)
@@ -189,6 +213,10 @@ export function useTimer(): UseTimerResult {
   useEffect(() => {
     saveMuted(muted)
   }, [muted])
+
+  useEffect(() => {
+    saveNotify(notifyEnabled)
+  }, [notifyEnabled])
 
   useEffect(() => {
     return () => {
@@ -211,9 +239,15 @@ export function useTimer(): UseTimerResult {
       beepedRunIdRef.current = state.runId
       if (!muted) {
         playTimerBeep()
+        vibrateOnFinish()
+      }
+      // A page that is on screen already shows the alert; only notify when
+      // the user is in another tab or window.
+      if (notifyEnabled && document.hidden) {
+        void showTimerNotification(formatTimer(state.durationMs))
       }
     }
-  }, [state.status, state.runId, muted])
+  }, [state.status, state.runId, state.durationMs, muted, notifyEnabled])
 
   const remainingMs =
     isRunning && state.endAt !== null
@@ -270,6 +304,17 @@ export function useTimer(): UseTimerResult {
     setMuted((prev) => !prev)
   }, [])
 
+  const toggleNotify = useCallback(() => {
+    if (notifyEnabled) {
+      setNotifyEnabled(false)
+      return
+    }
+    void requestNotificationPermission().then((permission) => {
+      setNotifyPermission(permission)
+      setNotifyEnabled(permission === 'granted')
+    })
+  }, [notifyEnabled])
+
   return {
     status: state.status,
     inputs: state.inputs,
@@ -282,6 +327,8 @@ export function useTimer(): UseTimerResult {
     canReset,
     canEdit,
     muted,
+    notifyPermission,
+    notifyEnabled,
     setField,
     setPreset,
     start,
@@ -289,5 +336,6 @@ export function useTimer(): UseTimerResult {
     toggle,
     reset,
     toggleMute,
+    toggleNotify,
   }
 }

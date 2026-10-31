@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { stopwatchReducer, type StopwatchState } from './useStopwatch.ts'
-import { timerReducer, type TimerState } from './useTimer.ts'
+import type { StopwatchState, TimerState } from '../types.ts'
+import { stopwatchReducer } from './useStopwatch.ts'
+import { timerReducer } from './useTimer.ts'
 
 const IDLE_STOPWATCH: StopwatchState = {
   status: 'idle',
@@ -31,7 +32,10 @@ describe('stopwatchReducer', () => {
   })
 
   it('ignores a second START while running', () => {
-    const running = stopwatchReducer(IDLE_STOPWATCH, { type: 'START', now: 100 })
+    const running = stopwatchReducer(IDLE_STOPWATCH, {
+      type: 'START',
+      now: 100,
+    })
     expect(stopwatchReducer(running, { type: 'START', now: 900 })).toBe(running)
   })
 
@@ -96,7 +100,9 @@ describe('timerReducer', () => {
     expect(
       timerReducer(running, { type: 'SET_FIELD', field: 'm', rawValue: '5' }),
     ).toBe(running)
-    expect(timerReducer(running, { type: 'SET_PRESET', minutes: 5 })).toBe(running)
+    expect(timerReducer(running, { type: 'SET_PRESET', minutes: 5 })).toBe(
+      running,
+    )
   })
 
   it('sanitises and clamps typed values', () => {

@@ -10,8 +10,8 @@ export function LapList({ laps, extremes }: LapListProps) {
   if (laps.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-slate-200 px-4 py-6 text-center text-sm text-slate-600 dark:border-slate-800 dark:text-slate-400">
-        No laps recorded yet. Press <span className="font-medium">Lap</span> while
-        running to record split times.
+        No laps recorded yet. Press <span className="font-medium">Lap</span>{' '}
+        while running to record split times.
       </div>
     )
   }

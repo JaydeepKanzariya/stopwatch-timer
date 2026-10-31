@@ -71,7 +71,10 @@ export function playTimerBeep(): void {
       osc.frequency.setValueAtTime(note.freq, now + note.startOffset)
 
       gain.gain.setValueAtTime(0.0001, now + note.startOffset)
-      gain.gain.exponentialRampToValueAtTime(0.22, now + note.startOffset + 0.02)
+      gain.gain.exponentialRampToValueAtTime(
+        0.22,
+        now + note.startOffset + 0.02,
+      )
       gain.gain.exponentialRampToValueAtTime(
         0.0001,
         now + note.startOffset + note.duration,
